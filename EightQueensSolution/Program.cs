@@ -26,9 +26,9 @@ static int[,] CloneBoard(int[,] board)
 
 static void PlaceQueen(int[,] board, Point point)
 {
-    foreach (var square in GetAttackingPoints(board, point))
+    foreach (var attackingPoint in GetAttackingPoints(board, point))
     {
-        board[square.Y, square.X] = attacked;
+        board[attackingPoint.Y, attackingPoint.X] = attacked;
     }
 }
 
@@ -72,11 +72,11 @@ static IEnumerable<Point> GetHorizontalPoints(int[,] board, int y)
 static IEnumerable<Point> GetLeadingDiagonalPoints(int[,] board, Point point)
 {
     var lowest = int.Min(point.X, point.Y);
-    var startPoint = new Point(point.X - lowest, point.Y - lowest);
+    var diagonalPoint = new Point(point.X - lowest, point.Y - lowest);
 
-    for (; startPoint.X < board.GetLength(1) && startPoint.Y < board.GetLength(0); startPoint.X++, startPoint.Y++)
+    for (; diagonalPoint.X < board.GetLength(1) && diagonalPoint.Y < board.GetLength(0); diagonalPoint.X++, diagonalPoint.Y++)
     {
-        yield return startPoint;
+        yield return diagonalPoint;
     }
 }
 
@@ -84,11 +84,11 @@ static IEnumerable<Point> GetAntiDiagonalPoints(int[,] board, Point point)
 {
     var xDistanceFromEdge = board.GetLength(1) - 1 - point.X;
     var lowest = int.Min(xDistanceFromEdge, point.Y);
-    var startPoint = new Point(point.X + lowest, point.Y - lowest);
+    var diagonalPoint = new Point(point.X + lowest, point.Y - lowest);
 
-    for (; startPoint.X >= 0 && startPoint.Y < board.GetLength(0); startPoint.X--, startPoint.Y++)
+    for (; diagonalPoint.X >= 0 && diagonalPoint.Y < board.GetLength(0); diagonalPoint.X--, diagonalPoint.Y++)
     {
-        yield return startPoint;
+        yield return diagonalPoint;
     }
 }
 
@@ -159,7 +159,7 @@ static IEnumerable<Point> GetLowestAttackCountPoints(int[,] board, int col)
 
 static int GetAttackCount(int[,] board, Point point)
 {
-    if (PointIsOffBoard() || CurrentSquareIsEliminated())
+    if (IsOffBoardPoint() || IsEliminatedSquare())
     {
         return -1;
     }
@@ -170,9 +170,9 @@ static int GetAttackCount(int[,] board, Point point)
         .Select(point => board[point.Y, point.X])
         .Count(square => square is not attacked) - duplicateSquareCount;
 
-    bool PointIsOffBoard() => point.Y < 0 ||
+    bool IsOffBoardPoint() => point.Y < 0 ||
                               point.Y >= board.GetLength(0) && 
                               point.X < 0 || 
                               point.X >= board.GetLength(1);
-    bool CurrentSquareIsEliminated() => board[point.Y, point.X] is attacked;
+    bool IsEliminatedSquare() => board[point.Y, point.X] is attacked;
 }
